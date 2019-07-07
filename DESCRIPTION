@@ -1,5 +1,5 @@
 Package: ECOFFBayes
-Title: Antimicrobial Wild Type Distributions of Microorganisms
+Title: Bayesian finite mixture BNN.. model for EUCAST zone data 
 Version: 2019.07.06
 Authors@R: c(person("Tim", "Foeckersperger", role = "aut"),
 	     person("Katrin", "Leberfinger", role = "aut"),
@@ -7,9 +7,7 @@ Authors@R: c(person("Tim", "Foeckersperger", role = "aut"),
              person("Bettina", "Gruen", role = c("ctb", "cre"),
                     email = "Bettina.Gruen@jku.at",
 		    comment = c(ORCID = "0000-0001-7265-4773")))
-Description: Contains the MIC- and inhibition zone diameter
-	     distributions of microorganisms without and with resistance mechanisms
-	     available at <https://mic.eucast.org/Eucast2/>.
+Description: The  package  provides  a  user-friendly  way  of  estimating  a  Bayesian  mixture  model for  the  EUCAST  zone  diameter  data  and  of  getting  an  automatically  computed ECOFF value.
 Depends: R (>= 3.5.0)
 License: GPL-2
 Encoding: UTF-8
