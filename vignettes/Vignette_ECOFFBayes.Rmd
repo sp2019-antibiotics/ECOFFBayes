@@ -1,0 +1,159 @@
+---
+title: "ECOFF Finder Bayesian Approach"
+author: "Tim Föckersperger, Katrin Leberfinger, Cornelia Volaucnik"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette_ECOFFBayes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This documents is an introduction to the package `ECOFFBayes`. The aim of this package is to find cutoff points between resistant and non-resistant antibiotics. 
+
+Therefore, first install and load the package ECOFFBayes.
+```{r setup}
+install("ECOFFBayes")
+library(ECOFFBayes)
+```
+
+# Simulated Data
+
+```{r data.sim}
+load(Antibiotics)
+```
+
+
+```{r ex1.sim}
+bayes.density <- TheBayesteApproach(Antibiotics)
+```
+
+The output is of type `TheBayesteApproach` and includes the following components:
+
+- number of components `k`
+```{r ex2.sim}
+bayes.density$k
+```
+
+- parameter of the normal components
+```{r ex3.sim}
+bayes.density$normal.params
+```
+
+- parameter of binomial component
+```{r ex4.sim}
+bayes.density$biomial.params
+```
+
+For this object, also a plotting function is provided, which plots the histogram of the data and the estimated density.
+
+```{r ex5.sim}
+plot(bayes.density)
+```
+
+# Data: EUCASTData
+
+Get the data of the zone diameter from the external package EUCASTData. 
+
+```{r data, eval=FALSE}
+library(ECOFFBayes)
+data("ZD", package = "EUCASTData")
+```
+
+## Example 1: 
+
+For one example dataset, first only selected the antimicrobial and bacteria you are interested in.
+
+```{r example1, eval=FALSE}
+data1 <- subset(ZD, 
+                Antimicrobial == "Ampicillin" & 
+                  Bacterium == "Escherichia coli", 
+                grepl("^Z", colnames(ZD)))
+```
+
+If you do not have any prior knowledge just apply this function to your data and it will come up with the number of components and the estimated parameter.
+
+```{r example1.1, eval=FALSE}
+res <- TheBayesteApproach(data = data1)
+```
+
+The output is of type `TheBayesteApproach` and includes the following components:
+
+- number of components `k`
+```{r example1.2, eval=FALSE}
+res1$k
+```
+
+- parameter of the normal components
+```{r example1.3, eval=FALSE}
+res1$normal.params
+```
+
+- parameter of binomial component
+```{r example1.4, eval=FALSE}
+res1$biomial.params
+```
+
+For this object, also a plotting function is provided, which plots the histogram of the data and the estimated density.
+
+```{r example1.5, eval=FALSE}
+plot(res2)
+```
+
+## Example 2: 
+
+```{r example2, eval=FALSE}
+data2 <- subset(ZD, 
+                Antimicrobial == "Piperacillin" & 
+                  Bacterium == "Escherichia coli", 
+                grepl("^Z", colnames(ZD)))
+```
+
+If you have prior knowledge for your data, you can include this either through some prior parameter and/or through fixing the number of components k.
+
+In this case, both information are included.
+```{r example2.1, eval=FALSE}
+prior <- list(a.prior = 1, b.prior = 1, e0.prior = 1, b0.prior = 5,
+              B0.prior = 0.01, c0.prior = 5, C0.prior = 10)
+k <- 2
+res <- TheBayesteApproach(data = data2, prior = prior, k = k)
+```
+
+
+## Example 3: 
+
+```{r example3, eval=FALSE}
+data3 <- subset(ZD, 
+                Antimicrobial == "Mecillinam" & 
+                  Bacterium == "Escherichia coli", 
+                grepl("^Z", colnames(ZD)))
+```
+
+```{r example3.1, eval=FALSE}
+res3 <- TheBayesteApproach(data = data3)
+```
+
+As we are also interested in the cutoff point between wildtype and non-wildtype bacteria (ECOFF), we can also calculate this value.
+Therefore we 
+
+```{r example3.4, eval=FALSE}
+FindECOFF(res3, 
+          pi.level = 0.3, 
+          quantile = 0.01)
+```
+
+A line that shows the ECOFF value can also be included in the graph. Therefore the parameter `ecoff`, which is by default `FALSE`, needs to be set to `TRUE`.
+Also here the quantile can be changed.
+```{r example3.5, eval=FALSE}
+plot(res3, 
+     ecoff = TRUE, 
+     quantile = 0.01)
+```
+

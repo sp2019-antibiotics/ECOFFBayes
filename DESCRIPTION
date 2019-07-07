@@ -1,0 +1,22 @@
+Package: ECOFFBayes
+Title: Antimicrobial Wild Type Distributions of Microorganisms
+Version: 2019.07.06
+Authors@R: c(person("Tim", "Foeckersperger", role = "aut"),
+	     person("Katrin", "Leberfinger", role = "aut"),
+	     person("Cornelia", "Volaucnik", role = "aut"),
+             person("Bettina", "Gruen", role = c("ctb", "cre"),
+                    email = "Bettina.Gruen@jku.at",
+		    comment = c(ORCID = "0000-0001-7265-4773")))
+Description: Contains the MIC- and inhibition zone diameter
+	     distributions of microorganisms without and with resistance mechanisms
+	     available at <https://mic.eucast.org/Eucast2/>.
+Depends: R (>= 3.5.0)
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports:	graphics, rjags, stats
+RoxygenNote: 6.1.1.9000
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
