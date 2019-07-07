@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Tim Föckersperger, Katrin Leberfinger, Cornelia Volaucnik" />
+
+<meta name="date" content="2019-07-07" />
+
+<title>ECOFF Finder Bayesian Approach</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">ECOFF Finder Bayesian Approach</h1>
+<h4 class="author">Tim Föckersperger, Katrin Leberfinger, Cornelia Volaucnik</h4>
+<h4 class="date">2019-07-07</h4>
+
+
+
+<p>This documents is an introduction to the package <code>ECOFFBayes</code>. The aim of this package is to find cutoff points between resistant and non-resistant antibiotics.</p>
+<p>Therefore, first load the package <code>ECOFFBayes</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(ECOFFBayes)</a></code></pre></div>
+<div id="simulated-data" class="section level1">
+<h1>Simulated Data</h1>
+<p>The package provides simulated data to try out the different functions.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">data</span>(<span class="st">&quot;Antibiotics&quot;</span>)</a></code></pre></div>
+<p>If you do not have any prior knowledge just apply this function to your data and it will come up with the number of components and the estimated parameter.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">bayes.density &lt;-<span class="st"> </span><span class="kw">TheBayesteApproach</span>(Antibiotics)</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="co">#&gt; Compiling model graph</span></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="co">#&gt;    Resolving undeclared variables</span></a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="co">#&gt;    Allocating nodes</span></a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="co">#&gt; Graph information:</span></a>
+<a class="sourceLine" id="cb3-6" title="6"><span class="co">#&gt;    Observed stochastic nodes: 422</span></a>
+<a class="sourceLine" id="cb3-7" title="7"><span class="co">#&gt;    Unobserved stochastic nodes: 885</span></a>
+<a class="sourceLine" id="cb3-8" title="8"><span class="co">#&gt;    Total graph size: 2224</span></a>
+<a class="sourceLine" id="cb3-9" title="9"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb3-10" title="10"><span class="co">#&gt; Initializing model</span></a>
+<a class="sourceLine" id="cb3-11" title="11"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb3-12" title="12"><span class="co">#&gt; [1] &quot;Number of components: 3&quot;</span></a></code></pre></div>
+<p>If you have prior knowledge for your data, you can include this either through some prior parameter and/or through fixing the number of components k.</p>
+<p>In this case, both information are included.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">prior &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">a.prior =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb4-2" title="2">              <span class="dt">b.prior =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb4-3" title="3">              <span class="dt">e0.prior =</span> <span class="dv">1</span>, </a>
+<a class="sourceLine" id="cb4-4" title="4">              <span class="dt">b0.prior =</span> <span class="dv">5</span>,</a>
+<a class="sourceLine" id="cb4-5" title="5">              <span class="dt">B0.prior =</span> <span class="fl">0.01</span>, </a>
+<a class="sourceLine" id="cb4-6" title="6">              <span class="dt">c0.prior =</span> <span class="dv">5</span>, </a>
+<a class="sourceLine" id="cb4-7" title="7">              <span class="dt">C0.prior =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb4-8" title="8">k &lt;-<span class="st"> </span><span class="dv">3</span></a>
+<a class="sourceLine" id="cb4-9" title="9">bayes.density.with.prior &lt;-<span class="st"> </span><span class="kw">TheBayesteApproach</span>(<span class="dt">data =</span> Antibiotics,</a>
+<a class="sourceLine" id="cb4-10" title="10">                                               <span class="dt">prior =</span> prior, </a>
+<a class="sourceLine" id="cb4-11" title="11">                                               <span class="dt">k =</span> k)</a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="co">#&gt; Compiling model graph</span></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="co">#&gt;    Resolving undeclared variables</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="co">#&gt;    Allocating nodes</span></a>
+<a class="sourceLine" id="cb4-15" title="15"><span class="co">#&gt; Graph information:</span></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="co">#&gt;    Observed stochastic nodes: 422</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="co">#&gt;    Unobserved stochastic nodes: 851</span></a>
+<a class="sourceLine" id="cb4-18" title="18"><span class="co">#&gt;    Total graph size: 2173</span></a>
+<a class="sourceLine" id="cb4-19" title="19"><span class="co">#&gt; </span></a>
+<a class="sourceLine" id="cb4-20" title="20"><span class="co">#&gt; Initializing model</span></a></code></pre></div>
+<p>The output is of type <code>TheBayesteApproach</code> and includes the following components:</p>
+<ul>
+<li>number of components <code>k</code></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">bayes.density<span class="op">$</span>k</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="co">#&gt; [1] 3</span></a>
+<a class="sourceLine" id="cb5-3" title="3">bayes.density.with.prior<span class="op">$</span>k</a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="co">#&gt; [1] 3</span></a></code></pre></div>
+<ul>
+<li>parameter of the normal components</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">bayes.density<span class="op">$</span>normal.params</a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="co">#&gt;      mu[1]      mu[2]      mu[3]      pi[1]      pi[2]      pi[3] </span></a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="co">#&gt; 16.3233369 21.0605719 10.3106667  0.2517630  0.4539779  0.2942591 </span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="co">#&gt;  sigma2[1]  sigma2[2]  sigma2[3] </span></a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt;  2.2606340  1.6116504  1.4905761</span></a>
+<a class="sourceLine" id="cb6-6" title="6">bayes.density.with.prior<span class="op">$</span>normal.params</a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt;      mu[1]      mu[2]      mu[3]      pi[1]      pi[2]      pi[3] </span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; 20.8824190 15.9427572 10.1053288  0.4444455  0.2459661  0.3095884 </span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt;  sigma2[1]  sigma2[2]  sigma2[3] </span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt;  1.4228336  1.5465846  1.6183396</span></a></code></pre></div>
+<ul>
+<li>parameter of binomial component</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">bayes.density<span class="op">$</span>binom.res</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co">#&gt; [1] 0.156</span></a>
+<a class="sourceLine" id="cb7-3" title="3">bayes.density.with.prior<span class="op">$</span>binom.res</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="co">#&gt; [1] 0.156</span></a></code></pre></div>
+<p>As we are also interested in the cutoff point between wildtype and non-wildtype bacteria (ECOFF), we can also calculate this value. Therefore we</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">FindECOFF</span>(bayes.density, </a>
+<a class="sourceLine" id="cb8-2" title="2">          <span class="dt">pi.level =</span> <span class="fl">0.3</span>, </a>
+<a class="sourceLine" id="cb8-3" title="3">          <span class="dt">quantile =</span> <span class="fl">0.01</span>)</a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="co">#&gt; [1] 18</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="kw">FindECOFF</span>(bayes.density.with.prior, </a>
+<a class="sourceLine" id="cb8-6" title="6">          <span class="dt">pi.level =</span> <span class="fl">0.3</span>, </a>
+<a class="sourceLine" id="cb8-7" title="7">          <span class="dt">quantile =</span> <span class="fl">0.01</span>)</a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="co">#&gt; [1] 18</span></a></code></pre></div>
+<p>For this object, also a plotting function is provided, which plots the histogram of the data and the estimated density.</p>
+<p>A line that shows the ECOFF value can also be included in the graph. Therefore the parameter <code>ECOFF</code>, which is by default <code>FALSE</code>, needs to be set to <code>TRUE</code>. Also here the <code>quantile</code> and <code>pi.level</code>parameter can be changed.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">plot</span>(bayes.density,</a>
+<a class="sourceLine" id="cb9-2" title="2">     <span class="dt">ECOFF =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb9-3" title="3">     <span class="dt">quantile =</span> <span class="fl">0.01</span>,</a>
+<a class="sourceLine" id="cb9-4" title="4">     <span class="dt">pi.level =</span> <span class="fl">0.3</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">plot</span>(bayes.density.with.prior,</a>
+<a class="sourceLine" id="cb10-2" title="2">     <span class="dt">ECOFF =</span> <span class="ot">TRUE</span>,</a>
+<a class="sourceLine" id="cb10-3" title="3">     <span class="dt">quantile =</span> <span class="fl">0.01</span>,</a>
+<a class="sourceLine" id="cb10-4" title="4">     <span class="dt">pi.level =</span> <span class="fl">0.3</span>)</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="data-eucastdata" class="section level1">
+<h1>Data: EUCASTData</h1>
+<p>Get the data of the zone diameter from the external package <code>EUCASTData</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="kw">library</span>(ECOFFBayes)</a>
+<a class="sourceLine" id="cb11-2" title="2"><span class="kw">data</span>(<span class="st">&quot;ZD&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;EUCASTData&quot;</span>)</a></code></pre></div>
+<div id="example-1" class="section level2">
+<h2>Example 1:</h2>
+<p>For one example dataset, first only selected the antimicrobial and bacteria you are interested in. Afterwards, you can run you analysis using the following functions:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1">data1 &lt;-<span class="st"> </span><span class="kw">subset</span>(ZD, </a>
+<a class="sourceLine" id="cb12-2" title="2">                Antimicrobial <span class="op">==</span><span class="st"> &quot;Ampicillin&quot;</span> <span class="op">&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="st">                  </span>Bacterium <span class="op">==</span><span class="st"> &quot;Escherichia coli&quot;</span>, </a>
+<a class="sourceLine" id="cb12-4" title="4">                <span class="kw">grepl</span>(<span class="st">&quot;^Z&quot;</span>, <span class="kw">colnames</span>(ZD)))</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1">res1 &lt;-<span class="st"> </span><span class="kw">TheBayesteApproach</span>(<span class="dt">data =</span> data1)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">FindECOFF</span>(res1</a>
+<a class="sourceLine" id="cb14-2" title="2">          <span class="dt">pi.level =</span> <span class="fl">0.3</span>, </a>
+<a class="sourceLine" id="cb14-3" title="3">          <span class="dt">quantile =</span> <span class="fl">0.01</span>)</a></code></pre></div>
+</div>
+<div id="example-2" class="section level2">
+<h2>Example 2:</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">data2 &lt;-<span class="st"> </span><span class="kw">subset</span>(ZD, </a>
+<a class="sourceLine" id="cb15-2" title="2">                Antimicrobial <span class="op">==</span><span class="st"> &quot;Piperacillin&quot;</span> <span class="op">&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb15-3" title="3"><span class="st">                  </span>Bacterium <span class="op">==</span><span class="st"> &quot;Escherichia coli&quot;</span>, </a>
+<a class="sourceLine" id="cb15-4" title="4">                <span class="kw">grepl</span>(<span class="st">&quot;^Z&quot;</span>, <span class="kw">colnames</span>(ZD)))</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">res2 &lt;-<span class="st"> </span><span class="kw">TheBayesteApproach</span>(<span class="dt">data =</span> data2)</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1"><span class="kw">FindECOFF</span>(res2, </a>
+<a class="sourceLine" id="cb17-2" title="2">          <span class="dt">pi.level =</span> <span class="fl">0.3</span>, </a>
+<a class="sourceLine" id="cb17-3" title="3">          <span class="dt">quantile =</span> <span class="fl">0.01</span>)</a></code></pre></div>
+</div>
+<div id="example-3" class="section level2">
+<h2>Example 3:</h2>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">data3 &lt;-<span class="st"> </span><span class="kw">subset</span>(ZD, </a>
+<a class="sourceLine" id="cb18-2" title="2">                Antimicrobial <span class="op">==</span><span class="st"> &quot;Mecillinam&quot;</span> <span class="op">&amp;</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb18-3" title="3"><span class="st">                  </span>Bacterium <span class="op">==</span><span class="st"> &quot;Escherichia coli&quot;</span>, </a>
+<a class="sourceLine" id="cb18-4" title="4">                <span class="kw">grepl</span>(<span class="st">&quot;^Z&quot;</span>, <span class="kw">colnames</span>(ZD)))</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">res3 &lt;-<span class="st"> </span><span class="kw">TheBayesteApproach</span>(<span class="dt">data =</span> data3)</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">FindECOFF</span>(res3, </a>
+<a class="sourceLine" id="cb20-2" title="2">          <span class="dt">pi.level =</span> <span class="fl">0.3</span>, </a>
+<a class="sourceLine" id="cb20-3" title="3">          <span class="dt">quantile =</span> <span class="fl">0.01</span>)</a></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
