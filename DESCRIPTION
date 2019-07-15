@@ -1,5 +1,5 @@
 Package: ECOFFBayes
-Title: Bayesian finite mixture BNN.. model for EUCAST zone data 
+Title: Bayesian Finite Mixture BNN.. Model for EUCAST Zone Data 
 Version: 2019.07.06
 Authors@R: c(person("Tim", "Foeckersperger", role = "aut"),
 	     person("Katrin", "Leberfinger", role = "aut"),
@@ -7,7 +7,7 @@ Authors@R: c(person("Tim", "Foeckersperger", role = "aut"),
              person("Bettina", "Gruen", role = c("ctb", "cre"),
                     email = "Bettina.Gruen@jku.at",
 		    comment = c(ORCID = "0000-0001-7265-4773")))
-Description: The  package  provides  a  user-friendly  way  of  estimating  a  Bayesian  mixture  model for  the  EUCAST  zone  diameter  data  and  of  getting  an  automatically  computed ECOFF value.
+Description: Implements a  user-friendly  way  of  estimating  a  Bayesian  mixture  model for  the  EUCAST  zone  diameter  data  and  of  getting  an  automatically  computed ECOFF value.
 Depends: R (>= 3.5.0)
 License: GPL-2
 Encoding: UTF-8
