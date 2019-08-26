@@ -1,21 +1,21 @@
 #' Gibbs Sampler
 #'
-#' This function can be used to perform gibbs sampling using JAGS and the R-package rjags.
+#' This function can be used to perform Gibbs sampling using JAGS and the R-package rjags.
 #'
-#' This function is part of the TheBayesteApproach function of the ECOFFBayes package. It can be used to performed Gibbs sampling to sample
-#' the \eqn{\mu}'s and \eqn{\tau} from the posterior distribution. Thereby, the prior of the \eqn{\mu}'s are assumed to be normal and the
-#' prior of \eqn{\tau} is assumed to be a gamma distribution. To account for the binned data, y is drawn from a truncated normal distribution.
-#' The data argument must be a flat vector of the binned non-resistant bacteria observations. The prior argument must be a list and specified like
-#' described in the function \code{\link{TheBayesteApproach}}. k is an optional parameter indicating the number of normal components.If the argument
+#' This function is part of the TheBayesteApproach function of the ECOFFBayes package. It can be used to perform Gibbs sampling to sample
+#' the \eqn{\mu}'s and \eqn{\tau} from the posterior distribution. Thereby, the priors of the \eqn{\mu}'s are assumed to be normal and the
+#' priors of \eqn{\tau}'s are assumed to be gamma distributions. To account for the binning, y is drawn from a truncated normal distribution.
+#' The data argument must be a flat vector of the binned non-resistant bacteria observations. The prior argument must be a list and specified as
+#' described in the function \code{\link{TheBayesteApproach}}. k is an optional parameter indicating the number of normal components. If the argument
 #' k is not defined by the user, the function assumes 20 components. In total 10000 draws are done where only each 10th draw is really taken (thinning = 10).
-#' A burning period of 1000 iterations is automatically set. Finally, \eqn{\tau} is converted to \eqn{\sigma}^2 and
+#' A burnin period of 1000 iterations is automatically set. Finally, \eqn{\tau} is converted to \eqn{\sigma}^2 and
 #' returned is a matrix of the Gibbs sampling draws with the \eqn{\mu}, \eqn{\pi}, \eqn{\sigma}^2 and z.
 #' @param y data
 #' @param prior an optional list of hyperparameters for prior distributions (See details how to define this list). Default is NULL.
 #' @param k optional value of how many normal components should be modeled. Default is NULL.
 #' @export
 #' @keywords Gibbs sampling, JAGS, posterior distribution
-#' @return Returns a matrix which contains the gibbs sampler iterations after thining and deleting the burning period.
+#' @return Returns a matrix which contains the Gibbs sampler iterations after thinning and deleting the burnin period.
 #' Columns include the estimated normal components parameters, the component probabilities and the classifications z for all observations.
 #'
 CallJags <- function(y, prior = NULL, k = NULL){

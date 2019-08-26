@@ -11,7 +11,7 @@ FindECOFF(obj, pi.level = 0.3, quantile = 0.01)
 
 \item{pi.level}{The level of summed up component probabilities from the distributions coming from the "right" side that needs to be exceeded (default is 0.3)}
 
-\item{quantile}{The quantile from the component where the pi.level is exceed (default is 0.01)}
+\item{quantile}{The quantile from the component where the pi.level is exceeded (default is 0.01)}
 }
 \description{
 This function calculates the ECOFF for the wild type of an 'TheBayesteApproach' object
@@ -19,7 +19,7 @@ This function calculates the ECOFF for the wild type of an 'TheBayesteApproach' 
 \details{
 This function takes an object of the class TheBayesteApproach and calculates the ECOFF. The ECOFF is the
 epidemiological cut-off value that separates bacteria without (wild type) and with acquired resistance
-mechanisms (non-wild type) to the antibiotics in question. In order to caluclate the ECOFF, first the wild type
+mechanisms (non-wild type) to the antibiotics in question. In order to calculate the ECOFF, first the wild type
 component is selected by finding the component where the sum of its \eqn{\pi_k} and  the \eqn{\pi}'s of all components
 with a higher \eqn{\mu_k} exceed a certain threshold (by default: 0.3). Once this component is found a certain
 quantile is taken as the ECOFF value (by default: 0.01)

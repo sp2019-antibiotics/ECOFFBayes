@@ -14,7 +14,7 @@ TheBayesteApproach(data, prior = NULL, k = NULL)
 \item{k}{optional value of how many normal components should be modeled. Default is NULL.}
 }
 \value{
-An object of the S3 class 'TheBayesteApproach which includes a list including these elements:
+An object of the S3 class 'TheBayesteApproach' which is a list including these elements:
 \itemize{
  \item{k: }{    number of components}
  \item{normal.params: }{vector with the MAPE normal component parameters}
@@ -26,26 +26,26 @@ An object of the S3 class 'TheBayesteApproach which includes a list including th
 This function performs BNN... mixture density estimation of binned antibiotic resistance data with Bayesian modeling
 }
 \details{
-This function can be used to estimate a BNN... mixture density from binned antibiotic resistance. It therefore uses a Bayesian set up
+This function can be used to estimate a BNN... mixture density from binned antibiotic resistance data. It therefore uses a Bayesian set up
 where it models the resistant antibiotics (ZD = 6) with a binomial component and all other non-resistant antibiotics with a mixture
-of normal components. The data is assumed to be binned to integer values which minimum 6 and maximum 50. Additionally to the data, the arguments
+of normal components. The data is assumed to be rounded to integer values which minimum 6 and maximum 50. Additionally to the data, the arguments
 prior and k may be specified. Thereby, the argument prior must be a list containing hyperparameters for the prior distribution and k must be
 a value defining the number of modeled normal components. The elements of the prior list need to be named as the following:
 \itemize{
  \item{"a"}{    shape parameter \eqn{\alpha} of the beta prior for \eqn{\theta} of the binomial component}
  \item{"b"}{    shape parameter \eqn{\beta} of the beta prior for \eqn{\theta} of the binomial component}
  \item{"b0"}{   hyperparameter \eqn{\mu} of the normal prior for \eqn{\mu} of the normal components}
- \item{"B0"}{   hyperparameters \eqn{\tau} (precision) of the normal prior for \eqn{\mu} of the normal components}
+ \item{"B0"}{   hyperparameter \eqn{\tau} (precision) of the normal prior for \eqn{\mu} of the normal components}
  \item{"c0"}{   hyper shape parameter \eqn{\gamma} of the gamma prior for \eqn{\tau} of the normal components}
  \item{"C0"}{   hyper lambda parameter \eqn{\lambda} of the gamma prior for \eqn{\tau} of the normal components}
- \item{"e0"}{   hyper lambda parameter \eqn{e_0} of the dirichlet prior for \eqn{\pi}}
+ \item{"e0"}{   hyper lambda parameter \eqn{e_0} of the Dirichlet prior for \eqn{\pi}}
 }
 The length of each hyperparameter can only be one, thus if one wants to use hyperparameters for the priors of \eqn{\mu} and \eqn{\tau},
-they are used for all normal components. If the hyperparameters are not named in the that way the function still runs but ignores the
-wrongly labeled elements of the list. In the first step the functions estimates the MAPE for the binomial component. If any
-hyperparameter for the beta prior is defined as noted above, it will be used. Otherwise a and b are set to 1. Jags is used for Gibbs sampling
+they are used for all normal components. If the hyperparameters are not named in that way the function still runs but ignores the
+wrongly labeled elements of the list. In the first step the function estimates the MAPE for the binomial component. If any
+hyperparameter for the beta prior is defined as noted above, it will be used. Otherwise a and b are set to 1. JAGS is used for Gibbs sampling
 from the posterior distribution. Finally, even though hyperparameters and the prior itself are defined for \eqn{\tau}, the MAPE for \eqn{\sigma^2}
- will be estimated and returned the MAPE, besides the MAPE for the \eqn{\mu}.
+will be estimated and returned, besides the MAPE for the \eqn{\mu}.
 
 If the argument k is not defined by the user, the function assumes 20 components, applies Gibbs sampling and then post-processes
 the outcome to determine the number of resulting components k that are filled. If the argument k is given, Gibbs sampling is
