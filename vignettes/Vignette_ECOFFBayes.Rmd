@@ -33,7 +33,7 @@ data("Antibiotics")
 
 If you do not have any prior knowledge just apply this function to your data and it will come up with the number of components and the estimated parameter.
 
-```{r}
+```{r, results = "hide"}
 bayes.density <- TheBayesteApproach(Antibiotics)
 ```
 
@@ -41,7 +41,7 @@ If you have prior knowledge for your data, you can include this either through s
 
 In this case, both information are included.
 
-```{r}
+```{r, results = "hide"}
 prior <- list(a.prior = 1, 
               b.prior = 1, 
               e0.prior = 1, 
@@ -110,69 +110,66 @@ plot(bayes.density.with.prior,
 
 Get the data of the zone diameter from the external package `EUCASTData`. 
 
-```{r, eval=FALSE}
-library(ECOFFBayes)
+```{r}
 data("ZD", package = "EUCASTData")
 ```
+
+The code for three examples is included. Due to the required run-times for larger samples only the results for the second example are included, while the other examples are not evaluated.
 
 ## Example 1: 
 
 For one example dataset, first only selected the antimicrobial and bacteria you are interested in.
 Afterwards, you can run you analysis using the following functions:
 
-```{r, eval=FALSE}
+```{r, eval = FALSE}
 data1 <- subset(ZD, 
                 Antimicrobial == "Ampicillin" & 
                   Bacterium == "Escherichia coli", 
                 grepl("^Z", colnames(ZD)))
-```
-
-```{r, eval=FALSE}
 res1 <- TheBayesteApproach(data = data1)
-```
-
-```{r, eval=FALSE}
 FindECOFF(res1
           pi.level = 0.3, 
           quantile = 0.01)
+plot(res1,
+     ECOFF = TRUE,
+     quantile = 0.01,
+     pi.level = 0.3)
 ```
 
 ## Example 2: 
 
-```{r, eval=FALSE}
+```{r, results = "hide"}
 data2 <- subset(ZD, 
                 Antimicrobial == "Piperacillin" & 
                   Bacterium == "Escherichia coli", 
                 grepl("^Z", colnames(ZD)))
-```
-
-```{r, eval=FALSE}
 res2 <- TheBayesteApproach(data = data2)
-```
-
-```{r, eval=FALSE}
+```{r}
 FindECOFF(res2, 
           pi.level = 0.3, 
           quantile = 0.01)
+```{r, fig.height=5, fig.width=7, warning=FALSE}
+plot(res2,
+     ECOFF = TRUE,
+     quantile = 0.01,
+     pi.level = 0.3)
 ```
 
 ## Example 3: 
 
-```{r, eval=FALSE}
+```{r, eval = FALSE}
 data3 <- subset(ZD, 
                 Antimicrobial == "Mecillinam" & 
                   Bacterium == "Escherichia coli", 
                 grepl("^Z", colnames(ZD)))
-```
-
-```{r, eval=FALSE}
 res3 <- TheBayesteApproach(data = data3)
-```
-
-```{r, eval=FALSE}
 FindECOFF(res3, 
           pi.level = 0.3, 
           quantile = 0.01)
+plot(res3,
+     ECOFF = TRUE,
+     quantile = 0.01,
+     pi.level = 0.3)
 ```
 
 

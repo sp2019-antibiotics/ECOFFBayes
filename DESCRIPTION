@@ -14,7 +14,8 @@ Encoding: UTF-8
 LazyData: true
 Imports:	graphics, methods, rjags, stats
 RoxygenNote: 6.1.1.9000
-Suggests: 
+Suggests:
+    EUCASTData,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
